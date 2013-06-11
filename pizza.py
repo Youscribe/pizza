@@ -21,7 +21,7 @@ M = [
 ]
 NB_HUMAIN = 6
 
-def best_pizza(self, i, j, value):
+def best_pizza(i, j):
     maxi = 0
     max_pizz = 0
     for p in range(NB_PIZZA):
@@ -30,11 +30,9 @@ def best_pizza(self, i, j, value):
             maxi = val
             max_pizz = p
             value = val
+    return max_pizz, value
 
-
-    return max_pizz
-
-def normalize(self):
+def normalize():
     for i in range(NB_HUMAIN):
         summ = 0
         for j in range(NB_PIZZA):
@@ -49,25 +47,24 @@ def normalize(self):
 
 
 
-def compute_best_sub(self, i, summ, optipairspizza, optipairsvalue, pairs, best_summ, best_pairs):
+def compute_best_sub(i, summ, optipairspizza, optipairsvalue, pairs, best_summ, best_pairs):
     if i<NB_HUMAIN-1 and pairs[i]==-1:
         #Look for a free slot
-        for j in (i+1, NB_HUMAIN):
+        for j in range(i+1, NB_HUMAIN):
             if i == 0:
                 summ = 0
             if pairs[j]==-1:
                 pairs[j] = i
                 pairs[i] = j
-                #std.cout << i << ":" << j << std.endl
                 summ += optipairsvalue[i*NB_HUMAIN+j]
-                compute_best_sub(i+1, summ, optipairspizza, optipairsvalue, pairs, best_summ, best_pairs)
+                best_summ, summ = compute_best_sub(i+1, summ, optipairspizza, optipairsvalue, pairs, best_summ, best_pairs)
                 pairs[j]=-1
                 pairs[i]=-1
-        return
+        return best_summ, summ
 
     i += 1
-    if i!=NB_HUMAIN:
-        return compute_best_sub(i, summ, optipairspizza, optipairsvalue, pairs, best_summ, best_pairs)
+    if i != NB_HUMAIN:
+        best_summ, summ = compute_best_sub(i, summ, optipairspizza, optipairsvalue, pairs, best_summ, best_pairs)
 
     else:
         #Check best combi
@@ -77,18 +74,21 @@ def compute_best_sub(self, i, summ, optipairspizza, optipairsvalue, pairs, best_
             for j in range(NB_HUMAIN):
                 best_pairs[j] = pairs[j]
                 #std.cout << j << ":" << pairs[j] << std.endl
-    return
+    return best_summ, summ
 
-def main(self):
+def main():
+    optipairspizza = [None]*(NB_HUMAIN*NB_HUMAIN)
+    optipairsvalue = [None]*(NB_HUMAIN*NB_HUMAIN)
+    pairs          = [None]*(NB_HUMAIN)
+    best_pairs     = [None]*(NB_HUMAIN)
+
     normalize()
 
     #Compute opti pairs matrix
     for i in range(NB_HUMAIN):
         for j in range(NB_HUMAIN):
             if i != j:
-                optipairspizza[i*NB_HUMAIN+j] = best_pizza(i,j, optipairsvalue[i*NB_HUMAIN+j])
-                optipairsvalue[j*NB_HUMAIN+i] = optipairsvalue[i*NB_HUMAIN+j]
-                optipairspizza[j*NB_HUMAIN+i] = optipairspizza[i*NB_HUMAIN+j]
+                optipairspizza[i*NB_HUMAIN+j], optipairsvalue[j*NB_HUMAIN+i] = best_pizza(i,j)
                 #std.cout << i << ":" << j << " best pizza : " << optipairspizza[j*NB_HUMAIN+i] << " value : " << optipairsvalue[j*NB_HUMAIN+i] << std.endl
 
 
@@ -99,8 +99,10 @@ def main(self):
 
     summ = 0
     best_summ = -1
-    compute_best_sub(0, summ, optipairspizza, optipairsvalue, pairs, best_summ, best_pairs)
+    best_summ, summ = compute_best_sub(0, summ, optipairspizza, optipairsvalue, pairs, best_summ, best_pairs)
 
     for i in range(NB_HUMAIN):
         print "{}:{} pizza : {}".format(i, best_pairs[i], optipairspizza[i*NB_HUMAIN+best_pairs[i]])
 
+if __name__ == "__main__":
+    main()
